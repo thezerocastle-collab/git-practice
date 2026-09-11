@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Schedule</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, #7c3aed 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #2563eb 0%, transparent 35%),
+        #070b16;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .blur {
+      position: fixed;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.35;
+      z-index: -1;
+    }
+
+    .blur.one {
+      background: #8b5cf6;
+      top: -100px;
+      left: -100px;
+    }
+
+    .blur.two {
+      background: #22d3ee;
+      right: -100px;
+      bottom: -100px;
+    }
+
+    header {
+      height: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8%;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(15px);
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #8b5cf6;
+    }
+
+    nav a {
+      color: #aab1c5;
+      text-decoration: none;
+      margin-left: 30px;
+      transition: 0.25s;
+    }
+
+    nav a:hover {
+      color: white;
+    }
+
+    .hero {
+      padding: 80px 8% 40px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 999px;
+      color: #c4b5fd;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 58px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 18px;
+      max-width: 650px;
+      margin: 0 auto 35px;
+      line-height: 1.7;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    button {
+      padding: 14px 22px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.25s;
+    }
+
+    .primary {
+      background: linear-gradient(90deg, #7c3aed, #2563eb);
+      color: white;
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+    }
+
+    .secondary {
+      background: rgba(255,255,255,0.06);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+    }
+
+    .dashboard {
+      width: 84%;
+      margin: 60px auto;
+      padding: 25px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+
+    .dashboard-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .dashboard-top h2 {
+      font-size: 20px;
+    }
+
+    .status {
+      color: #34d399;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 22px;
+      border-radius: 18px;
+      transition: 0.25s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .card h3 {
+      color: #c4b5fd;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .big {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .small {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .schedule {
+      grid-column: span 2;
+    }
+
+    .bar {
+      margin-top: 18px;
+    }
+
+    .bar-row {
+      margin-bottom: 14px;
+    }
+
+    .bar-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
+
+    .bar-bg {
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7c3aed, #22d3ee);
+      border-radius: 999px;
+      animation: grow 1.3s ease;
+    }
+
+    @keyframes grow {
+      from {
+        width: 0;
+      }
+    }
+
+    .recommendation {
+      margin-top: 18px;
+      padding: 18px;
+      background: linear-gradient(
+        135deg,
+        rgba(124,58,237,0.2),
+        rgba(37,99,235,0.15)
+      );
+      border-radius: 14px;
+      border: 1px solid rgba(139,92,246,0.25);
+    }
+
+    .recommendation strong {
+      color: #c4b5fd;
+    }
+
+    @media (max-width: 800px) {
+      h1 {
+        font-size: 40px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .schedule {
+        grid-column: span 1;
+      }
+
+      nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="blur one"></div>
+  <div class="blur two"></div>
+
+  <header>
+    <div class="logo">Smart<span>Schedule</span></div>
+
+    <nav>
+      <a href="#">Dashboard</a>
+      <a href="#">Analysis</a>
+      <a href="#">Schedule</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+
+    <div class="badge">AI · Data Driven Schedule</div>
+
+    <h1>
+      Your Data.<br>
+      <span>Your Perfect Schedule.</span>
+    </h1>
+
+    <p class="subtitle">
+      사용자의 수업 선호도와 생활 패턴을 분석하여
+      가장 적합한 시간표를 추천합니다.
+    </p>
+
+    <div class="buttons">
+      <button class="primary" onclick="analyze()">시간표 분석하기</button>
+      <button class="secondary">데이터 보기</button>
+    </div>
+
+  </section>
+
+  <section class="dashboard">
+
+    <div class="dashboard-top">
+      <h2>Personal Schedule Analysis</h2>
+      <div class="status">● Analysis Ready</div>
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>공강 선호도</h3>
+        <div class="big">87%</div>
+        <div class="small">금요일 공강 선호도가 높습니다.</div>
+      </div>
+
+      <div class="card">
+        <h3>오전 수업 선호도</h3>
+        <div class="big">23%</div>
+        <div class="small">오전 수업을 선호하지 않습니다.</div>
+      </div>
+
+      <div class="card">
+        <h3>추천 적합도</h3>
+        <div class="big">92%</div>
+        <div class="small">현재 추천 시간표와 높은 적합도</div>
+      </div>
+
+      <div class="card schedule">
+
+        <h3>Preference Analysis</h3>
+
+        <div class="bar">
+
+          <div class="bar-row">
+            <div class="bar-text">
+              <span>공강 중요도</span>
+              <span>90%</span>
+            </div>
+
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: 90%"></div>
+            </div>
+          </div>
+
+          <div class="bar-row">
+            <div class="bar-text">
+              <span>몰아듣기 선호</span>
+              <span>76%</span>
+            </div>
+
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: 76%"></div>
+            </div>
+          </div>
+
+          <div class="bar-row">
+            <div class="bar-text">
+              <span>오전 수업 선호</span>
+              <span>23%</span>
+            </div>
+
+            <div class="bar-bg">
+              <div class="bar-fill" style="width: 23%"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <h3>AI Recommendation</h3>
+
+        <div class="recommendation">
+          <strong>추천 유형</strong>
+          <p style="margin-top:10px;">
+            금요일 공강 + 오후 집중형 시간표
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <script>
+    function analyze() {
+      alert("데이터 분석을 시작합니다 🚀");
+    }
+  </script>
+
+</body>
+</html>
